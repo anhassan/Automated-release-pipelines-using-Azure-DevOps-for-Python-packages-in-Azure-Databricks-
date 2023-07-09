@@ -1,0 +1,24 @@
+trigger:
+- develop
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '3.6'
+  displayName: 'Use Python 3.6'
+
+- script: |
+    python -m pip install --upgrade pip
+    pip install setuptools twine wheel
+    python setup.py bdist_wheel
+  displayName: 'Install dependencies'
+
+- task: TwineAuthenticate@1
+  inputs:
+    artifactFeed: Quantum/databricks_utils_package_feed
+
+- script: |
+    python -m twine upload -r databricks_utils_package_feed --config-file $(PYPIRC_PATH) dist/*.whl
